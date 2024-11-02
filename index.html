@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Upload and Gallery</title>
+  <title>Image Upload</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     * {
@@ -29,7 +29,7 @@
       text-align: center;
     }
 
-    #uploadForm {
+    #passwordForm {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -42,11 +42,7 @@
       transition: all 0.3s ease;
     }
 
-    #uploadForm:hover {
-      transform: translateY(-2px);
-    }
-
-    #fileInput {
+    #passwordInput {
       padding: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
@@ -55,7 +51,7 @@
       transition: border-color 0.3s;
     }
 
-    #fileInput:focus {
+    #passwordInput:focus {
       border-color: #007bff;
       outline: none;
     }
@@ -76,6 +72,34 @@
       transform: translateY(-2px);
     }
 
+    #uploadForm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      display: none; /* Initially hidden */
+    }
+
+    #fileInput {
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-width: 300px;
+      transition: border-color 0.3s;
+    }
+
+    #fileInput:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
     #gallery {
       display: flex;
       flex-wrap: wrap;
@@ -86,6 +110,9 @@
 
     .gallery-item {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     #gallery img {
@@ -101,10 +128,8 @@
       transform: scale(1.05);
     }
 
-    .delete-button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
+    .delete-button, .download-button {
+      margin-top: 5px;
       background-color: red;
       color: white;
       border: none;
@@ -119,6 +144,14 @@
       background-color: darkred;
     }
 
+    .download-button {
+      background-color: green;
+    }
+
+    .download-button:hover {
+      background-color: darkgreen;
+    }
+
     @media (max-width: 600px) {
       #uploadForm {
         width: 90%;
@@ -127,18 +160,40 @@
   </style>
 </head>
 <body>
-  <h1>Image Upload</h1>
+
+  <!-- Password Form -->
+  <div id="passwordForm">
+    <h1>Enter Password</h1>
+    <input type="password" id="passwordInput" placeholder="Enter Password">
+    <input type="checkbox" id="showPassword" onclick="togglePassword()"> Show Password
+    <button type="button" onclick="checkPassword()">Submit</button>
+  </div>
 
   <!-- Form to upload images -->
   <div id="uploadForm">
+    <h1>Image Upload</h1>
     <input type="file" id="fileInput" accept="image/*">
     <button type="button" onclick="uploadImage()">Upload</button>
+    <div id="gallery"></div>
   </div>
 
-  <!-- Display uploaded images -->
-  <div id="gallery"></div>
-
   <script>
+    function checkPassword() {
+      const passwordInput = document.getElementById('passwordInput').value;
+      if (passwordInput === 'rxmha125') {
+        document.getElementById('uploadForm').style.display = 'flex'; // Show the upload form
+        document.getElementById('passwordForm').style.display = 'none'; // Hide password form
+      } else {
+        alert("Incorrect password. Please try again.");
+      }
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('passwordInput');
+      const showPassword = document.getElementById('showPassword');
+      passwordInput.type = showPassword.checked ? 'text' : 'password';
+    }
+
     function uploadImage() {
       const fileInput = document.getElementById('fileInput');
       const file = fileInput.files[0];
@@ -173,7 +228,15 @@
         deleteImage(url, galleryItem);
       };
 
+      const downloadButton = document.createElement('button');
+      downloadButton.innerText = 'Download';
+      downloadButton.className = 'download-button';
+      downloadButton.onclick = function() {
+        downloadImage(url);
+      };
+
       galleryItem.appendChild(img);
+      galleryItem.appendChild(downloadButton);
       galleryItem.appendChild(deleteButton);
       gallery.appendChild(galleryItem);
     }
@@ -189,6 +252,13 @@
       const updatedImages = uploadedImages.filter(image => image !== url);
       localStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
       galleryItem.remove(); // Remove the image from the display
+    }
+
+    function downloadImage(url) {
+      const link = document.createElement('a');
+      link.href = url; // Image URL
+      link.download = 'downloaded_image'; // Set the download file name
+      link.click(); // Programmatically click the link to trigger download
     }
 
     // Load uploaded images on page load
