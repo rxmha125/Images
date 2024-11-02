@@ -84,6 +84,10 @@
       max-width: 1000px;
     }
 
+    .gallery-item {
+      position: relative;
+    }
+
     #gallery img {
       width: 100%;
       max-width: 200px;
@@ -95,6 +99,24 @@
 
     #gallery img:hover {
       transform: scale(1.05);
+    }
+
+    .delete-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 0.3s;
+    }
+
+    .delete-button:hover {
+      background-color: darkred;
     }
 
     @media (max-width: 600px) {
@@ -137,16 +159,36 @@
 
     function displayImage(url) {
       const gallery = document.getElementById('gallery');
+      const galleryItem = document.createElement('div');
+      galleryItem.className = 'gallery-item';
+      
       const img = document.createElement('img');
       img.src = url;
       img.alt = 'Uploaded Image';
-      gallery.appendChild(img);
+      
+      const deleteButton = document.createElement('button');
+      deleteButton.innerText = 'Delete';
+      deleteButton.className = 'delete-button';
+      deleteButton.onclick = function() {
+        deleteImage(url, galleryItem);
+      };
+
+      galleryItem.appendChild(img);
+      galleryItem.appendChild(deleteButton);
+      gallery.appendChild(galleryItem);
     }
 
     function saveImage(url) {
       const uploadedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
       uploadedImages.push(url);
       localStorage.setItem('uploadedImages', JSON.stringify(uploadedImages));
+    }
+
+    function deleteImage(url, galleryItem) {
+      const uploadedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+      const updatedImages = uploadedImages.filter(image => image !== url);
+      localStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
+      galleryItem.remove(); // Remove the image from the display
     }
 
     // Load uploaded images on page load
